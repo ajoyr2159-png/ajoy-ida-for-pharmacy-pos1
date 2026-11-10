@@ -4,8 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Amol-Pharmacy-GitHub-Ready.zip'
+      - 'android/**'
       - '.github/workflows/android-debug-apk.yml'
+      - 'gradle/**'
   workflow_dispatch:
 
 permissions:
@@ -18,12 +19,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract project ZIP
-        run: |
-          test -f Amol-Pharmacy-GitHub-Ready.zip
-          mkdir -p /tmp/pharmacy-source
-          unzip -q Amol-Pharmacy-GitHub-Ready.zip -d /tmp/pharmacy-source
-          cp -a /tmp/pharmacy-source/. .
+      - name: Verify Android project
+        run: test -f android/app/build.gradle.kts
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
