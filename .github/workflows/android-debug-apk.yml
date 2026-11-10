@@ -1,0 +1,52 @@
+name: Build Pharmacy Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Amol-Pharmacy-GitHub-Ready.zip'
+      - '.github/workflows/android-debug-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract project ZIP
+        run: |
+          test -f Amol-Pharmacy-GitHub-Ready.zip
+          mkdir -p /tmp/pharmacy-source
+          unzip -q Amol-Pharmacy-GitHub-Ready.zip -d /tmp/pharmacy-source
+          cp -a /tmp/pharmacy-source/. .
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build debug APK
+        working-directory: android
+        run: gradle --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Amol-Pharmacy-Debug-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
